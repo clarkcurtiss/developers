@@ -5,7 +5,7 @@
     "license": "MIT",
     "scripts": {
         "develop": "gatsby develop",
-        "build": "gatsby build",
+        "build": "gatsby build --prefix-paths",
         "build:spectacle:v1": "node ./spectacle/bin/spectacle -a ./app -t ./static/api/v1 data/api-spec-v1-1.json",
         "serve": "gatsby serve",
         "watch": "npm-watch"
@@ -40,6 +40,7 @@
         "react-helmet": "^5.2.0"
     },
     "devDependencies": {
+        "gh-pages": "^2.0.1",
         "npm-watch": "^0.4.0"
     }
 }

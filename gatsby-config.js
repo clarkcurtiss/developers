@@ -1,4 +1,5 @@
 module.exports = {
+    pathPrefix: 'developers',
     plugins: [
         `gatsby-plugin-sass`,
         `gatsby-transformer-remark`,

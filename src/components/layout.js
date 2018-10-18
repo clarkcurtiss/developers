@@ -28,7 +28,7 @@ export default ({ children }) => (
             </div>
             <div className='col-auto'>
                 <Nav>
-                    <a className='nav-link' href='/api/v1/'>API</a>
+                    <a className='nav-link' href='/developers/api/v1/'>API</a>
                     <NavLink to='/api/websocket'>Websocket</NavLink>
                 </Nav>
             </div>

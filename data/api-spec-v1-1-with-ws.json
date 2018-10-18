@@ -33,6 +33,9 @@
         }
     },
     "x-spectacle-topics": {
+        "Websockets": {
+            "description": "[Click here](/api/websocket) for more information about the Websocket API."
+        },
         "API Reference": {
             "description": "Our APIs are broken into three distinct groups:\n\n- **Public**- Public information available without an API key\n- **Market**- For programmatic trading of cryptocurrencies\n- **Account**- For managing your account"
         }

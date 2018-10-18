@@ -1,0 +1,24 @@
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+
+table {
+    @extend .table;
+    width: auto;
+    max-width: 100%;
+    thead th, td {
+        border-bottom: 0; // reset
+        border: 1px solid gray;
+    }
+}
+
+hr {
+    margin-top: 3rem;
+}
+
+code {
+    color: #0089fa;
+}
+
+pre {
+    background: #f0f0f0;
+    padding: 1rem;
+}

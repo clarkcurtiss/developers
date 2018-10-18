@@ -1,0 +1,1407 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "v1.1",
+        "title": "Bittrex API",
+        "description": "Bittrex provides a simple and powerful REST API to allow you to programatically perform nearly all actions you can from our web interface. All requests use the `application/json` content type and go over `https`. The base url is `https://bittrex.com/api/{version}/`. All requests are GET requests and all responses come in a default response object with the result in the result field. Always check the `success` flag to ensure that your API call succeeded.\n\nWe are currently restricting orders to 500 open orders and 200,000 orders a day. We reserve the right to change these settings as we tune the system. If you are affected by these limits as an active trader, please visit [https://support.bittrex.com](https://support.bittrex.com) and open a support ticket.\n\nFor websocket implementations, refer to our [documentation and code samples](/api/websocket).\n\nIf you have any questions, feedback or recommendations for API support you can post a question in our support center.",
+        "termsOfService": "https://bittrex.com/Home/terms/",
+        "contact": {
+            "name": "Bittrex API Team",
+            "url": "https://bittrex.com",
+            "email": "apiteam@bittrex.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "bittrex.com",
+    "basePath": "/api/v1.1",
+    "schemes": [
+        "https"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "securityDefinitions": {
+        "api_key": {
+            "type": "apiKey",
+            "description": "In the spirit of keeping things simple, we offer an easy to manage API Key authentication method. You can have multiple API keys, each with their own level of rights. To manage your API keys please go to _Settings > Manage API Keys_.\n> __Note__: You MUST have 2FA enabled to create an API key for your own safety.\n\n- __Read Info__ - You can only view the balances, orders, and other details of the account\n- __Withdraw__ - We allow you to programatically withdraw any currency to an address you provide. This can be used to quick arbitrage exchanges or move money into cold storage after thresholds.\n- __Trade Limit__ - This allows the API key to place LIMIT buy and sell orders\n\nFor this version, we use a standard HMAC-SHA512 signing. Append `apikey` and `nonce` to your request and calculate the HMAC hash and include it under an apisign header.\n\n __Note:__ the nonce is not respected right now but will be enforced later.\n\n",
+            "x-spectacle-example": "```\n$apikey='xxx';\n$apisecret='xxx';\n$nonce=time();\n$uri='https://bittrex.com/api/v1.1/market/getopenorders?apikey='.$apikey.'&nonce='.$nonce;\n$sign=hash_hmac('sha512',$uri,$apisecret); \n$ch = curl_init($uri); \ncurl_setopt($ch, CURLOPT_HTTPHEADER, array('apisign:'.$sign)); \n$execResult = curl_exec($ch); \n$obj = json_decode($execResult);\n```",
+            "name": "apikey",
+            "in": "query"
+        }
+    },
+    "x-spectacle-topics": {
+        "Websockets": {
+            "description": "[Click here](/api/websocket) for more information about the Websocket API."
+        },
+        "API Reference": {
+            "description": "Our APIs are broken into three distinct groups:\n\n- **Public**- Public information available without an API key\n- **Market**- For programmatic trading of cryptocurrencies\n- **Account**- For managing your account"
+        }
+    },
+    "tags": {
+        "public": {
+            "name": "Public",
+            "description": "Public things"
+        },
+        "market": {
+            "name": "Market",
+            "description": "Market things"
+        },
+        "account": {
+            "name": "Account",
+            "description": "Account things"
+        }
+    },
+    "responses": {
+        "ResponseSuccessUuid": {
+            "description": "",
+            "schema": {
+                "$ref": "#/definitions/ResponseSuccessUuid"
+            }
+        }
+    },
+    "paths": {
+        "/public/getmarkets": {
+            "get": {
+                "operationId": "public_getmarkets",
+                "summary": "",
+                "description": "Used to get the open and available trading markets at Bittrex along with other meta data",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Market"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/getcurrencies": {
+            "get": {
+                "operationId": "public_getcurrencies",
+                "summary": "",
+                "description": "Used to get all supported currencies at Bittrex along with other meta data.",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Currency"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/getticker": {
+            "get": {
+                "operationId": "public_getticker",
+                "summary": "",
+                "description": "Used to get the current tick values for a market.",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ex: BTC-LTC)",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/MarketTick"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/getmarketsummaries": {
+            "get": {
+                "operationId": "public_getmarketsummaries",
+                "summary": "",
+                "description": "Used to get the last 24 hour summary of all active markets.",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [],
+                "responses": {
+                   "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/MarketSummary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/getmarketsummary": {
+            "get": {
+                "operationId": "public_getmarketsummary",
+                "summary": "",
+                "description": "Used to get the last 24 hour summary of a specific market.",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ex: BTC-LTC)",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                   "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/MarketSummary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/getorderbook": {
+            "get": {
+                "operationId": "public_getorderbook",
+                "summary": "",
+                "description": "Used to get retrieve the orderbook for a given market.",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ex: BTC-LTC)",
+                        "required": true
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "`buy`, `sell` or `both` to identify the type of orderbook to return",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/MarketSummary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/getmarkethistory": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve the latest trades that have occurred for a specific market.",
+                "deprecated": false,
+                "tags": ["Public"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ex: BTC-LTC)",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/MarketHistoryEntry"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/market/buylimit": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to place a buy order in a specific market. Use buylimit to place limit orders. Make sure you have the proper permissions set on your API keys for this call to work.",
+                "deprecated": false,
+                "tags": ["Market"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ex: BTC-LTC)",
+                        "required": true
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "description": "the amount to purchase",
+                        "required": true
+                    },
+                    {
+                        "name": "rate",
+                        "in": "query",
+                        "description": "the rate at which to place the order",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseSuccessUuid"
+                        }
+                    }
+                }
+            }
+        },
+        "/market/selllimit": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to place an sell order in a specific market. Use selllimit to place limit orders. Make sure you have the proper permissions set on your API keys for this call to work.",
+                "deprecated": false,
+                "tags": ["Market"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ex: BTC-LTC)",
+                        "required": true
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "description": "the amount to purchase",
+                        "required": true
+                    },
+                    {
+                        "name": "rate",
+                        "in": "query",
+                        "description": "the rate at which to place the order",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseSuccessUuid"
+                        }
+                    }
+                }
+            }
+        },
+        "/market/cancel": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to cancel a buy or sell order.",
+                "deprecated": false,
+                "tags": ["Market"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "query",
+                        "description": "uuid of buy or sell order",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseSuccessUuid"
+                        }
+                    }
+                }
+            }
+        },
+        "/market/getopenorders": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Get all orders that you currently have opened. A specific market can be requested.",
+                "deprecated": false,
+                "tags": ["Market"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ie. BTC-LTC)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Order"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getbalances": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve all balances from your account.",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Balance"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getbalance": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve the balance from your account for a specific currency.",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "required": true,
+                        "description": "a string literal for the currency (ie. BTC)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "$ref": "#/definitions/Balance"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getdepositaddress": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve or generate an address for a specific currency. If one does not exist, the call will fail and return ADDRESS_GENERATING until one is available.",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "a string literal for the currency (ie. BTC)",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Address"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/withdraw": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to withdraw funds from your account. _Note: please account for txfee._",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description":"a string literal for the currency (ie. BTC)",
+                        "required": true
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "description":"the quantity of coins to withdraw",
+                        "required": true
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description":"the address where to send the funds",
+                        "required": true
+                    },
+                    {
+                        "name": "paymentid",
+                        "in": "query",
+                        "description":"used for CryptoNotes/BitShareX/Nxt/XRP and any other coin that has a memo/message/tag/paymentid option",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseSuccessUuid"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getorder": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve a single order by uuid",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "query",
+                        "description": "the uuid of the buy or sell order",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Order"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getorderhistory": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve your order history.",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "query",
+                        "description": "a string literal for the market (ie. BTC-LTC). If omitted, will return for all markets",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/HistoryEntry"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getwithdrawalhistory": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve your withdrawal history.",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "a string literal for the currency (ie. BTC). If omitted, will return for all currencies",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/WithdrawalHistoryEntry"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account/getdeposithistory": {
+            "get": {
+                "operationId": "",
+                "summary": "",
+                "description": "Used to retrieve your deposit history.",
+                "deprecated": false,
+                "tags": ["Account"],
+                "security": null,
+                "parameters": [
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "a string literal for the currency (ie. BTC). If omitted, will return for all currencies",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "''"
+                                },
+                                "result": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/DepositHistoryEntry"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+    },
+    "definitions": {
+
+        "Address": {
+            "type": "object",
+            "properties": {
+                "Currency": {
+                    "type": "string",
+                    "example": "VTC"
+                },
+                "Address": {
+                    "type": "string",
+                    "example": "Vy5SKeKGXUHKS2WVpJ76HYuKAu3URastUo"
+                }
+            }
+        },
+        "Balance": {
+            "type": "object",
+            "properties": {
+                "Currency": {
+                    "type": "string",
+                    "example": "DOGE"
+                },
+                "Balance": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 4.21549076
+                },
+                "Available": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 4.21549076
+                },
+                "Pending": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00000000
+                },
+                "CryptoAddress": {
+                    "type": "string",
+                    "example": "DLxcEt3AatMyr2NTatzjsfHNoB9NT62HiF"
+                },
+                "Requested": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "Uuid": {
+                    "type": "string",
+                    "example": null
+                }
+            }
+        },
+        "Currency": {
+            "type": "object",
+            "properties": {
+                "Currency": {
+                    "type": "string",
+                    "example": "BTC"
+                },
+                "CurrencyLong": {
+                    "type": "string",
+                    "example": "Bitcoin"
+                },
+                "MinConfirmation": {
+                    "format": "int32",
+                    "type": "integer",
+                    "example": 2
+                },
+                "TxFee": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.0020000
+                },
+                "IsActive": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "CoinType": {
+                    "enum": [
+                        "ADA",
+                        "ANTSHARES",
+                        "BITCOIN",
+                        "BITCOIN_STEALTH",
+                        "BITSHAREX",
+                        "CRYPTO_NOTE_PAYMENTID",
+                        "ETH",
+                        "ETH_CONTRACT",
+                        "FIAT",
+                        "LISK",
+                        "LUMEN",
+                        "NEM",
+                        "NXT",
+                        "OMNI",
+                        "RIPPLE",
+                        "STEEM",
+                        "TRON",
+                        "WAVES",
+                        "WAVES_ASSET"
+                    ],
+                    "type": "string",
+                    "example": "BITCOIN"
+                },
+                "BaseAddress": {
+                    "type": "string",
+                    "example": null
+                }
+            }
+        },
+        "HistoryEntry": {
+            "type": "object",
+            "properties": {
+                "OrderUuid": {
+                    "format": "uuid",
+                    "type": "string",
+                    "example": "fd97d393-e9b9-4dd1-9dbf-f288fc72a185"
+                },
+                "Exchange": {
+                    "type": "string",
+                    "example": "BTC-LTC"
+                },
+                "TimeStamp": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "OrderType": {
+                    "enum": [
+                        "BUY_LIMIT",
+                        "SELL_LIMIT"
+                    ],
+                    "type": "string"
+                },
+                "Limit": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00000001
+                },
+                "Quantity": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 667.03644955
+                },
+                "QuantityRemaining": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00000000
+                },
+                "Commission": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00004921
+                },
+                "Price": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01968424
+                },
+                "PricePerUnit": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00002950
+                },
+                "IsConditional": {
+                    "type": "boolean"
+                },
+                "Condition": {},
+                "ConditionTarget": {},
+                "ImmediateOrCancel": {
+                    "type": "boolean"
+                }
+            }
+        },
+
+    
+
+        "Market": {
+            "type": "object",
+            "properties": {
+                "MarketCurrency": {
+                    "type": "string",
+                    "example": "LTC"
+                },
+                "BaseCurrency": {
+                    "type": "string",
+                    "example": "BTC"
+                },
+                "MarketCurrencyLong": {
+                    "type": "string",
+                    "example": "Litecoin"
+                },
+                "BaseCurrencyLong": {
+                    "type": "string",
+                    "example": "Bitcoin"
+                },
+                "MinTradeSize": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01000000
+                },
+                "MarketName": {
+                    "type": "string",
+                    "example": "BTC-LTC"
+                },
+                "IsActive": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "Created": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-02-13T00:00:00"
+                }
+            }
+        },
+        "MarketTick": {
+            "type": "object",
+            "properties": {
+                "Bid": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 2.05670368
+                },
+                "Ask": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 3.35579531
+                },
+                "Last": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 3.35579531
+                }
+            }
+        },
+        "MarketSummary": {
+            "type": "object",
+            "properties": {
+                "MarketName": {
+                    "type": "string",
+                    "example": "BTC-LTC"
+                },
+                "High": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01350000
+                },
+                "Low": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01200000
+                },
+                "Volume": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 3833.97619253
+                },
+                "Last": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01349998
+                },
+                "BaseVolume": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 47.03987026
+                },
+                "TimeStamp": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-07-09T07:22:16.72"
+                },
+                "Bid": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01271001
+                },
+                "Ask": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01291100
+                },
+                "OpenBuyOrders": {
+                    "format": "int32",
+                    "type": "integer",
+                    "example": 45
+                },
+                "OpenSellOrders": {
+                    "format": "int32",
+                    "type": "integer",
+                    "example": 45
+                },
+                "PrevDay": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01229501
+                },
+                "Created": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-02-13T00:00:00"
+                },
+                "DisplayMarketName": {
+                    "type": "string"
+                }
+            }
+        },
+        
+
+        "Order": {
+            "type": "object",
+            "properties": {
+                "Uuid": {
+                    "format": "uuid",
+                    "type": "string"
+                },
+                "OrderUuid": {
+                    "format": "uuid",
+                    "type": "string",
+                    "example": "8925d746-bc9f-4684-b1aa-e507467aaa99"
+                },
+                "Exchange": {
+                    "type": "string",
+                    "example": "BTC-LTC"
+                },
+                "OrderType": {
+                    "enum": [
+                        "LIMIT_BUY",
+                        "LIMIT_SELL"
+                    ],
+                    "type": "string"
+                },
+                "Quantity": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 100000.00000000
+                },
+                "QuantityRemaining": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 100000.00000000
+                },
+                "Limit": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00000001
+                },
+                "CommissionPaid": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00000000
+                },
+                "Price": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00000000
+                },
+                "PricePerUnit": {
+                    "format": "double",
+                    "type": "number",
+                    "example": null
+                },
+                "Opened": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-07-09T03:55:48.583"
+                },
+                "Closed": {
+                    "type": "boolean",
+                    "example": null
+                },
+                "CancelInitiated": {
+                    "type": "boolean"
+                },
+                "ImmediateOrCancel": {
+                    "type": "boolean"
+                },
+                "IsConditional": {
+                    "type": "boolean"
+                },
+                "Condition": {},
+                "ConditionTarget": {}
+            }
+        },
+        "OrderBook": {
+            "type": "object",
+            "properties": {
+                "buy": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/OrderBookEntry"
+                    }
+                },
+                "sell": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/OrderBookEntry"
+                    }
+                }
+            }
+        },
+        "OrderBookEntry": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 12.37000000
+                },
+                "rate": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 32.55412402
+                }
+            }
+        },
+        
+        
+        
+        
+        "MarketHistoryEntry": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "format": "int32",
+                    "type": "integer",
+                    "example": 319435
+                },
+                "TimeStamp": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-07-09T03:21:20.08"
+                },
+                "Quantity": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.30802438
+                },
+                "Price": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.01263400
+                },
+                "Total": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00389158
+                },
+                "FillType": {
+                    "type": "string",
+                    "example": "FILL"
+                },
+                "OrderType": {
+                    "type": "string",
+                    "example": "BUY"
+                }
+            }
+        },
+        "DepositHistoryEntry": {
+            "type": "object",
+            "properties": {
+                "PaymentUuid": {
+                    "format": "uuid",
+                    "type": "string",
+                    "example": "b52c7a5c-90c6-4c6e-835c-e16df12708b1"
+                },
+                "Currency": {
+                    "type": "string",
+                    "example": "BTC"
+                },
+                "Amount": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00156121
+                },
+                "Address": {
+                    "type": "string",
+                    "example": "1DeaaFBdbB5nrHj87x3NHS4onvw1GPNyAu"
+                },
+                "Opened": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-07-11T03:41:25.323"
+                },
+                "Authorized": {
+                    "type": "boolean"
+                },
+                "PendingPayment": {
+                    "type": "boolean"
+                },
+                "TxCost": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00020000
+                },
+                "TxId": {
+                    "type": "string",
+                    "example": "b4a575c2a71c7e56d02ab8e26bb1ef0a2f6cf2094f6ca2116476a569c1e84f6e"
+                },
+                "Canceled": {
+                    "type": "boolean"
+                },
+                "InvalidAddress": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "WithdrawalHistoryEntry": {
+            "type": "object",
+            "properties": {
+                "PaymentUuid": {
+                    "format": "uuid",
+                    "type": "string",
+                    "example": "b52c7a5c-90c6-4c6e-835c-e16df12708b1"
+                },
+                "Currency": {
+                    "type": "string",
+                    "example": "BTC"
+                },
+                "Amount": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 17.00000000
+                },
+                "Address": {
+                    "type": "string",
+                    "example": "1DeaaFBdbB5nrHj87x3NHS4onvw1GPNyAu"
+                },
+                "Opened": {
+                    "format": "date-time",
+                    "type": "string",
+                    "example": "2014-07-09T04:24:47.217"
+                },
+                "Authorized": {
+                    "type": "boolean"
+                },
+                "PendingPayment": {
+                    "type": "boolean"
+                },
+                "TxCost": {
+                    "format": "double",
+                    "type": "number",
+                    "example": 0.00020000
+                },
+                "TxId": {
+                    "type": "string",
+                    "example": "b4a575c2a71c7e56d02ab8e26bb1ef0a2f6cf2094f6ca2116476a569c1e84f6e"
+                },
+                "Canceled": {
+                    "type": "boolean"
+                },
+                "InvalidAddress": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "ResponseSuccessUuid": {
+            "description": "",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "''"
+                    },
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "uuid": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "614c34e4-8d71-11e3-94b5-425861b86ab6"
+                            }
+                        }
+                    }
+                }
+            },
+            "example": {
+                "success": true,
+                "message": "''",
+                "result": {
+                    "uuid": "614c34e4-8d71-11e3-94b5-425861b86ab6"
+                }
+            }
+        }
+    }
+}

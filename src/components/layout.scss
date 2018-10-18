@@ -1,0 +1,12 @@
+.site-container {
+    height: 100vh;
+
+
+    > :nth-child(1) {
+        height: 56px;
+    }
+
+    > :nth-child(2) {
+        height: calc(100% - 56px);
+    }
+}

@@ -1,14 +1,45 @@
 {
-  "name": "gatsby-starter-hello-world",
-  "description": "Gatsby hello world starter",
-  "license": "MIT",
-  "scripts": {
-    "develop": "gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve"
-  },
-  "dependencies": {
-    "gatsby": "^1.9.277",
-    "gatsby-link": "^1.6.46"
-  }
+    "name": "bittrex-developers",
+    "version": "0.1.0",
+    "description": "Bittrex API documentation site for developers",
+    "license": "MIT",
+    "scripts": {
+        "develop": "gatsby develop",
+        "build": "gatsby build",
+        "build:spectacle:v1": "node ./spectacle/bin/spectacle -a ./app -t ./static/api/v1 data/api-spec-v1-1.json",
+        "serve": "gatsby serve",
+        "watch": "npm-watch"
+    },
+    "watch": {
+        "build:spectacle:v1": {
+            "patterns": [
+                "data",
+                "spectacle"
+            ],
+            "extensions": "scss,js,json"
+        },
+        "develop": {
+            "patterns": [
+                "src",
+                "data",
+                "spectacle"
+            ],
+            "extensions": "scss,js,json"
+        }
+    },
+    "dependencies": {
+        "bootstrap": "^4.1.3",
+        "gatsby": "^2.0.0",
+        "gatsby-plugin-sass": "^2.0.1",
+        "gatsby-source-filesystem": "^2.0.1",
+        "gatsby-transformer-remark": "^2.1.3",
+        "jquery": "^3.3.1",
+        "node-sass": "^4.9.3",
+        "react": "^16.5.1",
+        "react-dom": "^16.5.1",
+        "react-helmet": "^5.2.0"
+    },
+    "devDependencies": {
+        "npm-watch": "^0.4.0"
+    }
 }
